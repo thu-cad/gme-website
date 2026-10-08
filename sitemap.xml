@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://thu-cad.github.io/gme-website/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/examples/boolean/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/examples/sweep/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/examples/skinning/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/examples/fillet/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/examples/shell/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/examples/intersection/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/examples/defeature/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/examples/gear/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/examples/offsetSurface/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/examples/transition/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/modules/booleans/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/modules/intersectors/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/modules/defeature/</loc></url>
+</urlset>

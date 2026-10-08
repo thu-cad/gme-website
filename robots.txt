@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://thu-cad.github.io/gme-website/sitemap.xml
