@@ -6,3 +6,14 @@
 .core-highlights{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-bottom:55px}.core-highlights article{padding:28px 30px;background:linear-gradient(140deg,#e9f3fb,#fff);border:1px solid #cddfeb;border-top:3px solid #2585dc;border-radius:8px}.core-highlights h3{font-size:24px;margin:14px 0}.core-highlights p{font-size:15px;color:#496678;margin:0 0 14px}.core-highlights .small-note{display:block;font-size:11px}@media(max-width:700px){.core-highlights{grid-template-columns:1fr;gap:15px;margin-bottom:35px}.core-highlights article{padding:23px}.core-highlights h3{font-size:21px}}
 
 .spec-strip{grid-template-columns:repeat(5,minmax(0,1fr))}@media(max-width:1000px) and (min-width:701px){.spec-strip>div{padding-left:14px}.spec-strip strong{font-size:16px}.spec-strip span{font-size:11px}}@media(max-width:700px){.spec-strip{grid-template-columns:repeat(2,minmax(0,1fr))}.spec-strip>div:last-child{grid-column:1/-1}}
+
+/* Native GME model video in the home-page hero. */
+.geometry.hero-media{height:auto;min-width:0;align-self:center;display:flex;flex-direction:column;background:#0b1929}
+.hero-media:before{display:none}
+.hero-media .viewer-top,.hero-media .viewer-bottom{position:static;padding:15px 18px;pointer-events:auto}
+.hero-media .viewer-top{align-items:center;flex-wrap:wrap}
+.hero-media .viewer-bottom{border-top:1px solid #2c465d}
+.hero-media video{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:contain;background:#0b1929}
+.hero-media video:focus-visible{outline:2px solid #8debcd;outline-offset:-2px}
+.hero-media .viewer-bottom strong{color:#e7f1f8;margin-bottom:3px}
+@media(max-width:700px){.hero-media .viewer-top,.hero-media .viewer-bottom{padding:12px}.hero-media .viewer-top{font-size:8px;letter-spacing:.6px}}
