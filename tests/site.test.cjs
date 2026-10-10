@@ -17,6 +17,24 @@ function site(query='?example=airliner#showcase',config={applicationFormUrl:''})
  return w;
 }
 function search(w,value){const q=w.document.getElementById('case-search');q.value=value;q.dispatchEvent(new w.Event('input'));}
+test('opening the homepage preserves its address while displaying the default model',()=>{
+ for(const suffix of ['', '#contact', '?utm_source=community#showcase']){
+  const w=site(suffix);
+  assert.equal(w.location.href,'https://thu-cad.github.io/gme-website/'+suffix);
+  assert.equal(w.document.querySelector('[data-case][aria-selected="true"]').dataset.case,'airliner');
+  w.close();
+ }
+});
+test('restoring the plain homepage after a case link keeps the address clean',()=>{
+ const w=site('?example=motherboard#showcase');
+ w.history.pushState(null,'','/gme-website/');
+ w.dispatchEvent(new w.PopStateEvent('popstate'));
+ assert.equal(w.location.href,'https://thu-cad.github.io/gme-website/');
+ assert.equal(w.document.querySelector('[data-case][aria-selected="true"]').dataset.case,'airliner');
+ w.document.querySelector('[data-case="yacht"]').click();
+ assert.equal(new URL(w.location).searchParams.get('example'),'yacht');
+ w.close();
+});
 test('search aliases find airplane, board and ship',()=>{
  const w=site();for(const [q,id] of [['飞机','airliner'],['电路板','motherboard'],['船舶','yacht']]){search(w,q);assert.equal(w.document.querySelector('[data-case][aria-selected="true"]').dataset.case,id);assert.equal(new URL(w.location).searchParams.get('example'),id);}w.close();
 });
