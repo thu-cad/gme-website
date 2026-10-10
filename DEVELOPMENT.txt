@@ -1,0 +1,19 @@
+GME website maintenance
+
+Deployment repository: https://github.com/thu-cad/gme-website
+Public URL: https://thu-cad.github.io/gme-website/
+GitHub Pages serves main at repository root. Do not deploy this site into the GME kernel repository.
+
+Local preview: python3 -m http.server 8798 --bind 127.0.0.1
+Generate model/technology pages and sitemap: npm run build:pages
+Install development-only test dependencies: npm ci --ignore-scripts
+Interaction tests: npm test
+Page links and all original/lightweight mesh assets: npm run check:assets
+
+Static files need no Node runtime on the hosting server. The viewer imports the bundled Three.js modules.
+Keep both .gmemesh and .gmemesh.gz assets: browsers without DecompressionStream use the original binary.
+Lightweight variants are re-faceted from original GME entities. The displayed mesh resolution is not the kernel's geometric accuracy.
+
+Feishu: follow FEISHU_FORM_SETUP.txt and set the verified public respondent URL in site-config.js.
+An empty URL intentionally leaves online submission unavailable. The existing form generates an email draft and does not send it.
+Feishu notifications to gme_community@163.com must be configured and verified separately.

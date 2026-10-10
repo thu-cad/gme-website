@@ -5,7 +5,7 @@ const host = document.getElementById('model-viewport');
 const status = document.getElementById('model-status');
 try {
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, matchMedia("(max-width:700px)").matches ? 1.5 : 2));
   renderer.setClearColor(0xf4f8f6);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;renderer.toneMappingExposure = 1;
@@ -25,8 +25,9 @@ try {
   const grid = new THREE.GridHelper(9, 18, 0xbacfc3, 0xdce7e1); grid.position.y = -1.38; scene.add(grid);
   const material = new THREE.MeshStandardMaterial({ color: 0x298ec3, metalness: .32, roughness: .32, side: THREE.DoubleSide });
   const edgeMaterial = new THREE.LineBasicMaterial({ color: 0x1e5672, transparent: true, opacity: .55 });
-  let model, wire = false, active = false;
-  let requestVersion=0, controller, desired, loadedName, home=[5,3.8,5.2];
+  let model, wire = false, active = false, needsRender = true;
+  controls.addEventListener("change", () => { needsRender = true; });
+  let requestVersion=0, controller, desired, loadedName, loadedQuality, home=[5,3.8,5.2];
   const realCases=Object.fromEntries((window.GME_REAL_CASES||[]).map(c=>[c.id,c]));
   const retry=document.getElementById("view-retry");
   function solid(geometry, group, edges = true) {
@@ -241,37 +242,98 @@ try {
     const mesh=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({vertexColors:true,metalness:.18,roughness:.48,side:THREE.DoubleSide,wireframe:wire}));
     return mesh;
   }
-  async function load(name,force=false) {
-    desired=name;
-    if(!force&&loadedName===name)return;
-    const version=++requestVersion;controller?.abort();controller=new AbortController();const signal=controller.signal;
-    dispose(model);model=null;loadedName=null;host.dataset.model='';host.dataset.loading=name;delete host.dataset.error;
-    status.hidden=false;status.textContent='正在加载三维模型…';retry.hidden=true;
-    try{
-      const c=realCases[name];
-      if(c){
-        const compressed=c.meshCompressed&&typeof DecompressionStream!=='undefined';
-        const response=await fetch(compressed?c.meshCompressed:c.mesh,{signal});if(!response.ok)throw new Error('Model HTTP '+response.status);
-        const buffer=compressed?await new Response(response.body.pipeThrough(new DecompressionStream('gzip'))).arrayBuffer():await response.arrayBuffer();
-        if(version!==requestVersion||signal.aborted)return;
-        model=decode(buffer);home=c.view||[5,3.8,5.2];host.dataset.source='GME';host.dataset.triangles=String(c.triangles);
-      }else{
-        model=new THREE.Group();({boolean:flange,sweep:pipeNetwork,skinning:impeller,fillet:bearing,shell,intersection,defeature,gear,offsetSurface,transition}[name]||bracket)(model);
-        grid.position.y=-1.38;home=[5,3.8,5.2];host.dataset.source='illustration';delete host.dataset.triangles;
-      }
-      scene.add(model);model.traverse(o=>{if(o.isMesh)o.material.wireframe=wire;});reset();loadedName=name;host.dataset.model=name;delete host.dataset.loading;status.hidden=true;
-    }catch(error){
-      if(version!==requestVersion||signal.aborted)return;
-      dispose(model);model=null;delete host.dataset.loading;host.dataset.error='load';
-      status.textContent='模型加载失败，可重试或查看下方 Studio 结果图。';status.hidden=false;retry.hidden=false;
-      const reference=document.querySelector('.reference');if(realCases[name]){reference.hidden=false;reference.open=true;}
-      console.error('GME model load failed:',name,error);
-    }
+  const quality = document.getElementById('model-quality');
+  const qualityStatus = document.getElementById('model-quality-status');
+  function selectedAsset(c) {
+    const preferLite = quality.value === 'lite' || (quality.value === 'auto' &&
+      (matchMedia('(max-width:700px)').matches || navigator.connection?.saveData || c.compressedBytes > 4000000));
+    return c.lite && preferLite ? c.lite : c;
   }
-  window.addEventListener('gme-case-change',e=>{desired=e.detail;if(active)load(desired);else if(host.dataset.loading){controller?.abort();++requestVersion;delete host.dataset.loading;}});
-  retry.onclick=()=>load(desired,true);
+  async function downloadMesh(response, compressed, expectedBytes, version) {
+    const chunks = [], reader = response.body?.getReader();
+    let received = 0;
+    if (!reader) chunks.push(new Uint8Array(await response.arrayBuffer()));
+    while (reader) {
+      const {done, value} = await reader.read();
+      if (done) break;
+      if (version !== requestVersion) { await reader.cancel(); return null; }
+      chunks.push(value); received += value.byteLength;
+      const percent = expectedBytes ? Math.min(99, Math.floor(received / expectedBytes * 100)) : 0;
+      status.textContent = `正在下载模型 ${percent}% · ${(received / 1000000).toFixed(1)} MB`;
+    }
+    if (version !== requestVersion) return null;
+    status.textContent = '正在准备三维显示…';
+    const blob = new Blob(chunks);
+    return compressed
+      ? new Response(blob.stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer()
+      : blob.arrayBuffer();
+  }
+  function clearModel() {
+    ++requestVersion; controller?.abort(); dispose(model); model = null;
+    desired = null; loadedName = null; loadedQuality = null;
+    host.dataset.model = ''; delete host.dataset.loading; delete host.dataset.error;
+    status.hidden = true; qualityStatus.textContent = ''; needsRender = true;
+  }
+  async function load(name, force = false) {
+    if (!name) { clearModel(); return; }
+    desired = name;
+    const c = realCases[name], asset = c ? selectedAsset(c) : null;
+    const mode = c && asset === c.lite ? 'lite' : 'full';
+    if (!force && loadedName === name && loadedQuality === mode) return;
+    const version = ++requestVersion;
+    controller?.abort();
+    const requestController = new AbortController();
+    controller = requestController;
+    const signal = requestController.signal;
+    let timedOut = false;
+    const timeout = setTimeout(() => { timedOut = true; requestController.abort(); }, 45000);
+    dispose(model); model = null; loadedName = null;
+    host.dataset.model = ''; host.dataset.loading = name; delete host.dataset.error;
+    status.hidden = false; status.textContent = '正在连接模型资源…'; retry.hidden = true;
+    needsRender = true;
+    try {
+      if (c) {
+        const compressed = asset.meshCompressed && typeof DecompressionStream !== 'undefined';
+        const bytes = compressed ? asset.compressedBytes : asset.bytes;
+        qualityStatus.textContent = `${mode === 'lite' ? '轻量' : '高清'}显示 · 约 ${(bytes / 1000000).toFixed(2)} MB · ${(asset.triangles / 10000).toFixed(1)} 万个三角形`;
+        const response = await fetch(compressed ? asset.meshCompressed : asset.mesh, {signal});
+        if (!response.ok) throw new Error('Model HTTP ' + response.status);
+        const buffer = await downloadMesh(response, compressed, bytes, version);
+        if (version !== requestVersion) return;
+        if (timedOut) throw new Error('Model download timed out');
+        if (signal.aborted || !buffer) return;
+        model = decode(buffer); home = c.view || [5, 3.8, 5.2];
+        host.dataset.source = 'GME'; host.dataset.triangles = String(asset.triangles);
+      } else {
+        qualityStatus.textContent = '前端几何原理示意';
+        model = new THREE.Group();
+        ({boolean:flange,sweep:pipeNetwork,skinning:impeller,fillet:bearing,shell,intersection,defeature,gear,offsetSurface,transition}[name] || bracket)(model);
+        grid.position.y = -1.38; home = [5,3.8,5.2];
+        host.dataset.source = 'illustration'; delete host.dataset.triangles;
+      }
+      scene.add(model); model.traverse(o => { if (o.isMesh) o.material.wireframe = wire; });
+      reset(); loadedName = name; loadedQuality = mode; host.dataset.model = name;
+      delete host.dataset.loading; status.hidden = true; needsRender = true;
+    } catch (error) {
+      if (version !== requestVersion || (signal.aborted && !timedOut)) return;
+      dispose(model); model = null; delete host.dataset.loading; host.dataset.error = 'load';
+      status.textContent = timedOut ? '下载超时，请重试、切换轻量显示，或查看下方结果图。' : '模型加载失败，可重试或查看下方 Studio 结果图。';
+      status.hidden = false; retry.hidden = false;
+      const reference = document.querySelector('.reference');
+      if (c) { reference.hidden = false; reference.open = true; }
+      console.error('GME model load failed:', name, error);
+    } finally { clearTimeout(timeout); }
+  }
+  window.addEventListener('gme-case-change', event => {
+    if (!event.detail) { clearModel(); return; }
+    desired = event.detail;
+    if (active) load(desired);
+    else if (host.dataset.loading) { controller?.abort(); ++requestVersion; delete host.dataset.loading; }
+  });
+  quality.onchange = () => { if (desired && active) load(desired, true); };
+  retry.onclick = () => load(desired, true);
   document.getElementById('view-reset').onclick = reset;
-  document.getElementById('view-wire').onclick = e => { wire = !wire; material.wireframe = wire; model?.traverse(o=>{if(o.isMesh)o.material.wireframe=wire;}); e.currentTarget.setAttribute('aria-pressed', String(wire)); e.currentTarget.textContent = wire ? '隐藏网格' : '显示网格'; };
+  document.getElementById('view-wire').onclick = e => { needsRender = true; wire = !wire; material.wireframe = wire; model?.traverse(o=>{if(o.isMesh)o.material.wireframe=wire;}); e.currentTarget.setAttribute('aria-pressed', String(wire)); e.currentTarget.textContent = wire ? '隐藏网格' : '显示网格'; };
   host.addEventListener('keydown', e => {
     const offset = camera.position.clone().sub(controls.target), sphere = new THREE.Spherical().setFromVector3(offset);
     if (e.key === 'ArrowLeft') sphere.theta -= .12;
@@ -285,10 +347,10 @@ try {
     e.preventDefault(); sphere.makeSafe(); sphere.radius = THREE.MathUtils.clamp(sphere.radius, controls.minDistance, controls.maxDistance);
     camera.position.copy(controls.target).add(new THREE.Vector3().setFromSpherical(sphere)); controls.update();
   });
-  new ResizeObserver(() => { const { width, height } = host.getBoundingClientRect(); if (!width || !height) return; renderer.setSize(width, height); camera.aspect = width / height; camera.updateProjectionMatrix(); }).observe(host);
+  new ResizeObserver(() => { const { width, height } = host.getBoundingClientRect(); if (!width || !height) return; renderer.setSize(width, height); camera.aspect = width / height; camera.updateProjectionMatrix(); needsRender = true; }).observe(host);
   new IntersectionObserver(entries=>{active=entries[0].isIntersecting;if(active&&desired&&loadedName!==desired&&!host.dataset.loading)load(desired);},{rootMargin:'120px'}).observe(host);
   desired=document.querySelector('[data-case][aria-selected=true]')?.dataset.case||'airliner';
-  renderer.setAnimationLoop(() => { if (active && !document.hidden) { controls.update(); renderer.render(scene, camera); } });
+  renderer.setAnimationLoop(() => { if (active && !document.hidden) { controls.update(); if (needsRender) { renderer.render(scene, camera); needsRender = false; } } });
   renderer.domElement.addEventListener('webglcontextlost', e => { e.preventDefault(); status.textContent = '三维显示暂时中断，请刷新页面。也可展开下方的原始结果图。'; status.hidden = false; });
 } catch (error) {
   status.textContent = '当前浏览器无法启用三维显示，请使用支持 WebGL 的浏览器。可展开下方查看原始结果图。';

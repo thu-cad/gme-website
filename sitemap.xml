@@ -1,17 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://thu-cad.github.io/gme-website/</loc></url>
   <url><loc>https://thu-cad.github.io/gme-website/examples/boolean/</loc></url>
-  <url><loc>https://thu-cad.github.io/gme-website/examples/sweep/</loc></url>
-  <url><loc>https://thu-cad.github.io/gme-website/examples/skinning/</loc></url>
-  <url><loc>https://thu-cad.github.io/gme-website/examples/fillet/</loc></url>
-  <url><loc>https://thu-cad.github.io/gme-website/examples/shell/</loc></url>
-  <url><loc>https://thu-cad.github.io/gme-website/examples/intersection/</loc></url>
   <url><loc>https://thu-cad.github.io/gme-website/examples/defeature/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/examples/fillet/</loc></url>
   <url><loc>https://thu-cad.github.io/gme-website/examples/gear/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/examples/intersection/</loc></url>
   <url><loc>https://thu-cad.github.io/gme-website/examples/offsetSurface/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/examples/shell/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/examples/skinning/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/examples/sweep/</loc></url>
   <url><loc>https://thu-cad.github.io/gme-website/examples/transition/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/models/01-keyed-flange/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/models/03-counterbored-fixture/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/models/04-bicubic-spline/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/models/05-ribbed-bearing-cover/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/models/06-spoked-gear/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/models/07-spherical-seat/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/models/08-finned-bearing-housing/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/models/09-curved-blade-rotor/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/models/10-exploded-tooling/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/models/11-tube-heat-exchanger/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/models/12-cross-drilled-manifold/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/models/13-universal-coupling/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/models/airliner/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/models/car/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/models/centrifugal/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/models/dome/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/models/eiffel/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/models/espresso/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/models/factory/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/models/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/models/mixer/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/models/motherboard/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/models/rocket/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/models/spline-compressor/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/models/spline-manifold/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/models/wing/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/models/yacht/</loc></url>
   <url><loc>https://thu-cad.github.io/gme-website/modules/booleans/</loc></url>
-  <url><loc>https://thu-cad.github.io/gme-website/modules/intersectors/</loc></url>
   <url><loc>https://thu-cad.github.io/gme-website/modules/defeature/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/modules/intersectors/</loc></url>
+  <url><loc>https://thu-cad.github.io/gme-website/technology/</loc></url>
 </urlset>
