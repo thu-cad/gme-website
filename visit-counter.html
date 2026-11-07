@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>GME 官网访问统计</title>
+  <style>
+    body { margin: 0; color: #64716e; background: transparent; font: 11px/24px system-ui, sans-serif; }
+    #busuanzi_value_page_pv { font-variant-numeric: tabular-nums; }
+  </style>
+</head>
+<body>
+  <span id="counter-status" role="status">访问统计加载中…</span>
+  <span id="busuanzi_container_page_pv" style="display:none" title="自接入起累计的页面访问次数，非独立访客数；由不蒜子提供统计。">累计访问 <span id="busuanzi_value_page_pv"></span> 次</span>
+  <noscript><style>#counter-status { display:none; }</style>访问统计需启用 JavaScript</noscript>
+  <script>
+    // A fixed iframe URL gives all homepage query/hash variants one counter,
+    // without including other projects hosted on thu-cad.github.io.
+    const status = document.getElementById('counter-status');
+    const value = document.getElementById('busuanzi_value_page_pv');
+    if (location.hostname === 'thu-cad.github.io') {
+      const timer = setTimeout(() => { status.textContent = '访问统计暂不可用'; }, 10000);
+      const observer = new MutationObserver(() => {
+        if (/^\d+$/.test(value.textContent.trim())) {
+          clearTimeout(timer);
+          status.hidden = true;
+          observer.disconnect();
+        }
+      });
+      observer.observe(value, { childList: true, subtree: true, characterData: true });
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = 'https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js';
+      script.onerror = () => {
+        clearTimeout(timer);
+        status.textContent = '访问统计暂不可用';
+      };
+      document.head.appendChild(script);
+    } else {
+      status.textContent = '访问统计仅在正式官网启用';
+    }
+  </script>
+</body>
+</html>

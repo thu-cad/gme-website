@@ -17,3 +17,8 @@ Lightweight variants are re-faceted from original GME entities. The displayed me
 Feishu: follow FEISHU_FORM_SETUP.txt and set the verified public respondent URL in site-config.js.
 An empty URL intentionally leaves online submission unavailable. The existing form generates an email draft and does not send it.
 Feishu notifications to gme_community@163.com must be configured and verified separately.
+
+Homepage visit counter: visit-counter.html uses Busuanzi page PV on a fixed iframe URL.
+This aggregates homepage query/hash variants without mixing other thu-cad.github.io projects.
+Counts start when the integration is enabled, measure page views (not unique people), and depend
+on the external service. Local previews do not send counting requests. Keep the iframe path stable.
