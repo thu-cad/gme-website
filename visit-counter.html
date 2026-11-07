@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer-when-downgrade">
   <meta name="robots" content="noindex, nofollow">
   <title>GME 官网访问统计</title>
   <style>
@@ -31,6 +32,7 @@
       observer.observe(value, { childList: true, subtree: true, characterData: true });
       const script = document.createElement('script');
       script.async = true;
+      script.referrerPolicy = 'no-referrer-when-downgrade';
       script.src = 'https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js';
       script.onerror = () => {
         clearTimeout(timer);
